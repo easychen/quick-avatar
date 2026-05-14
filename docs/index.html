@@ -356,7 +356,7 @@
         <label class="seed-label" style="margin-top:.5rem">Style</label>
         <div class="style-tabs">
           <button class="style-tab active" onclick="setStyle('doteye', this)">doteye</button>
-          <button class="style-tab" onclick="setStyle('doteyeAlpha', this)">doteyeAlpha</button>
+          <button class="style-tab" onclick="setStyle('doteye-alpha', this)">doteyeAlpha</button>
         </div>
 
         <div style="margin-top:1rem; padding:1rem; background:#fff; border-radius:var(--radius); border:1px solid var(--border); font-size:.85rem; color:var(--muted); font-family:monospace; line-height:1.8;">
@@ -384,7 +384,7 @@
 
     <div class="gallery-tabs">
       <button class="gallery-tab active" onclick="showGallery('doteye', this)">doteye <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 avatars</span></button>
-      <button class="gallery-tab" onclick="showGallery('doteyeAlpha', this)">doteyeAlpha <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 avatars · transparent</span></button>
+      <button class="gallery-tab" onclick="showGallery('doteye-alpha', this)">doteyeAlpha <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 avatars · transparent</span></button>
     </div>
     <div class="gallery-grid" id="galleryGrid"></div>
   </div>
@@ -526,7 +526,7 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
   // ── HERO STRIP ──
   (function buildStrip() {
     const strip = document.getElementById('heroStrip');
-    const sets = ['doteye', 'doteyeAlpha'];
+    const sets = ['doteye', 'doteye-alpha'];
     // build double-length for seamless loop
     const items = [];
     for (let pass = 0; pass < 2; pass++) {
@@ -541,7 +541,7 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
       img.src = `${CDN}/${set}/images/${idx}.png`;
       img.alt = '';
       img.loading = 'lazy';
-      if (set === 'doteyeAlpha') {
+      if (set === 'doteye-alpha') {
         img.style.background = 'linear-gradient(135deg,#ede9fe,#e0f2fe)';
       }
       strip.appendChild(img);
@@ -565,7 +565,7 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
 
     const img = document.getElementById('avatarResult');
     img.src = url;
-    img.className = 'avatar-result' + (currentStyle === 'doteyeAlpha' ? ' alpha-bg' : '');
+    img.className = 'avatar-result' + (currentStyle === 'doteye-alpha' ? ' alpha-bg' : '');
 
     document.getElementById('avatarIndex').textContent = idx;
     document.getElementById('avatarSet').textContent = currentStyle;
@@ -588,7 +588,7 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
   function buildGallery(set) {
     const grid = document.getElementById('galleryGrid');
     grid.innerHTML = '';
-    const isAlpha = set === 'doteyeAlpha';
+    const isAlpha = set === 'doteye-alpha';
     for (let i = 0; i < COUNT; i++) {
       const url = `${CDN}/${set}/images/${i}.png`;
       const item = document.createElement('div');
