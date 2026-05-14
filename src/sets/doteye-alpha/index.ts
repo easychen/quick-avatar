@@ -1,7 +1,7 @@
 import type { AvatarCollection } from '../../core/types.js';
 import { count, name } from './meta.js';
 
-export const doteye: AvatarCollection = {
+export const doteyeAlpha: AvatarCollection = {
   name,
   count,
 
@@ -10,7 +10,6 @@ export const doteye: AvatarCollection = {
     return mod.default as string;
   },
 
-  // Node.js only: resolves to the actual PNG file on disk
   getFilePath(index: number): string {
     return new URL(`./images/${index}.png`, import.meta.url).pathname;
   },

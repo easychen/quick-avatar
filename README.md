@@ -111,9 +111,20 @@ Returns an `AvatarResult`:
 
 ## Available Style Sets
 
-| Import | Name | Count |
-|--------|------|-------|
-| `doteye` | Doteye | 64 |
+| Import | Name | Count | Background |
+|--------|------|-------|------------|
+| `doteye` | Doteye | 64 | White |
+| `doteyeAlpha` | Doteye Alpha | 64 | Transparent |
+
+```ts
+import { createAvatar, doteye, doteyeAlpha } from 'quick-avatar';
+
+// Solid white background
+const avatar = createAvatar(doteye, { seed: 'user@example.com' });
+
+// Transparent background — compose over any color
+const avatarAlpha = createAvatar(doteyeAlpha, { seed: 'user@example.com' });
+```
 
 ---
 

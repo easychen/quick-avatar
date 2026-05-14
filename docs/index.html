@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quick-avatar — Deterministic PNG Avatars</title>
+  <meta name="description" content="Beautiful PNG avatar library for your projects. Deterministic, no API, no server. Just npm install and use." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #818cf8;
+      --primary-dark: #3730a3;
+      --accent: #06b6d4;
+      --bg: #ffffff;
+      --surface: #f8fafc;
+      --surface2: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,.07);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,.12);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 60px;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: .5rem;
+      font-weight: 700; font-size: 1.1rem; color: var(--text);
+    }
+    .nav-logo span { color: var(--primary); }
+    .nav-links { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-links a {
+      font-size: .9rem; color: var(--muted); font-weight: 500;
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .btn-github {
+      display: flex; align-items: center; gap: .4rem;
+      padding: .4rem .9rem; border-radius: 8px; font-size: .85rem; font-weight: 600;
+      background: var(--text); color: #fff; transition: opacity .15s;
+    }
+    .btn-github:hover { opacity: .85; }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+      padding: 6rem 1.5rem 4rem;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, #ede9fe 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .3rem .8rem; border-radius: 99px;
+      background: #ede9fe; color: var(--primary);
+      font-size: .8rem; font-weight: 600; margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800; letter-spacing: -.02em; line-height: 1.15;
+      max-width: 700px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      margin-top: 1.2rem; font-size: 1.1rem; color: var(--muted);
+      max-width: 500px;
+    }
+    .install-box {
+      display: flex; align-items: center; gap: .75rem;
+      margin-top: 2rem; padding: .75rem 1.25rem;
+      background: var(--text); color: #e2e8f0; border-radius: 10px;
+      font-family: 'SFMono-Regular', Consolas, monospace; font-size: .95rem;
+      cursor: pointer; user-select: all;
+      transition: opacity .15s;
+    }
+    .install-box:hover { opacity: .9; }
+    .install-box .dim { color: #64748b; }
+    .copy-hint { font-size: .75rem; color: #94a3b8; margin-top: .5rem; }
+
+    /* ── AVATAR STRIP ── */
+    .avatar-strip {
+      display: flex; gap: 1rem; margin-top: 3rem;
+      animation: scroll-x 30s linear infinite;
+      width: max-content;
+    }
+    .avatar-strip img {
+      width: 72px; height: 72px; border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 2px 12px rgba(0,0,0,.1);
+      transition: transform .2s;
+    }
+    .avatar-strip img:hover { transform: scale(1.12); }
+    .strip-wrap { overflow: hidden; width: 100%; margin-top: 3rem; }
+    @keyframes scroll-x {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ── SECTION ── */
+    section { padding: 5rem 1.5rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: .8rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: .75rem;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 800; letter-spacing: -.02em; margin-bottom: 1rem;
+    }
+    .section-subtitle { color: var(--muted); font-size: 1rem; max-width: 540px; }
+
+    /* ── PLAYGROUND ── */
+    #playground { background: var(--surface); }
+    .playground-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 3rem; align-items: start; margin-top: 2.5rem;
+    }
+    @media (max-width: 700px) { .playground-inner { grid-template-columns: 1fr; } }
+    .seed-group { display: flex; flex-direction: column; gap: 1rem; }
+    .seed-label { font-weight: 600; font-size: .9rem; }
+    .seed-input {
+      width: 100%; padding: .75rem 1rem;
+      border: 2px solid var(--border); border-radius: var(--radius);
+      font-size: 1rem; outline: none; transition: border-color .15s;
+      background: #fff;
+    }
+    .seed-input:focus { border-color: var(--primary); }
+    .style-tabs { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .style-tab {
+      padding: .4rem .9rem; border-radius: 8px; font-size: .85rem;
+      font-weight: 600; border: 2px solid var(--border);
+      background: #fff; cursor: pointer; transition: all .15s;
+    }
+    .style-tab.active {
+      background: var(--primary); color: #fff; border-color: var(--primary);
+    }
+    .avatar-preview-box {
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    }
+    .avatar-result {
+      width: 160px; height: 160px; border-radius: 50%;
+      object-fit: cover; box-shadow: var(--shadow-lg);
+      background: var(--surface2);
+      transition: opacity .2s;
+    }
+    .avatar-result.alpha-bg {
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ede9fe, #e0f2fe);
+    }
+    .avatar-meta { font-size: .85rem; color: var(--muted); text-align: center; }
+    .avatar-meta strong { color: var(--text); }
+    .copy-url-btn {
+      padding: .45rem 1rem; border-radius: 8px; font-size: .82rem;
+      font-weight: 600; background: var(--surface2); border: 1px solid var(--border);
+      cursor: pointer; transition: background .15s;
+    }
+    .copy-url-btn:hover { background: var(--border); }
+
+    /* ── STYLES GALLERY ── */
+    #styles { background: #fff; }
+    .gallery-tabs { display: flex; gap: .5rem; margin: 2rem 0 1.5rem; }
+    .gallery-tab {
+      padding: .5rem 1.2rem; border-radius: 8px; font-size: .9rem;
+      font-weight: 600; border: 2px solid var(--border);
+      background: #fff; cursor: pointer; transition: all .15s;
+    }
+    .gallery-tab.active {
+      background: var(--primary); color: #fff; border-color: var(--primary);
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: .75rem;
+    }
+    .gallery-item {
+      display: flex; flex-direction: column; align-items: center; gap: .3rem;
+      cursor: pointer;
+    }
+    .gallery-item img {
+      width: 72px; height: 72px; border-radius: 50%;
+      object-fit: cover; border: 2px solid transparent;
+      transition: border-color .15s, transform .15s;
+      background: var(--surface2);
+    }
+    .gallery-item img:hover {
+      border-color: var(--primary); transform: scale(1.08);
+    }
+    .gallery-item.alpha img {
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ede9fe, #e0f2fe);
+    }
+    .gallery-item span { font-size: .7rem; color: var(--muted); }
+    .copied-toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      background: var(--text); color: #fff;
+      padding: .6rem 1.4rem; border-radius: 8px; font-size: .85rem; font-weight: 600;
+      opacity: 0; pointer-events: none; transition: opacity .2s;
+      z-index: 999;
+    }
+    .copied-toast.show { opacity: 1; }
+
+    /* ── USAGE ── */
+    #usage { background: var(--surface); }
+    .code-tabs { display: flex; gap: .5rem; margin-bottom: 1rem; }
+    .code-tab {
+      padding: .4rem .9rem; border-radius: 8px; font-size: .85rem;
+      font-weight: 600; border: 2px solid var(--border);
+      background: #fff; cursor: pointer; transition: all .15s;
+    }
+    .code-tab.active {
+      background: var(--primary); color: #fff; border-color: var(--primary);
+    }
+    .code-panel { display: none; }
+    .code-panel.active { display: block; }
+    pre {
+      background: #0f172a; color: #e2e8f0;
+      padding: 1.5rem; border-radius: var(--radius);
+      overflow-x: auto; font-size: .85rem; line-height: 1.7;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+    }
+    .kw { color: #818cf8; }
+    .fn { color: #38bdf8; }
+    .str { color: #86efac; }
+    .cm { color: #475569; }
+
+    /* ── FEATURES ── */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
+    .feature-card {
+      padding: 1.5rem; border-radius: var(--radius);
+      border: 1px solid var(--border); background: #fff;
+    }
+    .feature-icon { font-size: 1.8rem; margin-bottom: .75rem; }
+    .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
+    .feature-card p { font-size: .875rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 1.5rem;
+      text-align: center; color: var(--muted); font-size: .875rem;
+    }
+    footer a { color: var(--primary); font-weight: 600; }
+    footer a:hover { text-decoration: underline; }
+    .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-top: .75rem; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <rect width="22" height="22" rx="6" fill="#4f46e5"/>
+      <circle cx="11" cy="9" r="4" fill="white"/>
+      <path d="M3 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    quick-<span>avatar</span>
+  </div>
+  <div class="nav-links">
+    <a href="#styles">Styles</a>
+    <a href="#playground">Playground</a>
+    <a href="#usage">Usage</a>
+    <a href="https://github.com/easychen/quick-avatar" target="_blank" class="btn-github">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">✨ Open Source · MIT License</div>
+  <h1>Beautiful PNG Avatars<br/>for <em>Every Project</em></h1>
+  <p>Deterministic, illustrated avatars. Pass a seed, get the same avatar every time. No API, no server required.</p>
+  <div class="install-box" onclick="copyInstall(this)">
+    <span class="dim">$</span>
+    <span>npm install quick-avatar</span>
+  </div>
+  <p class="copy-hint">click to copy</p>
+
+  <div class="strip-wrap">
+    <div class="avatar-strip" id="heroStrip"></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section style="padding: 2rem 1.5rem 4rem;">
+  <div class="container">
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🎲</div>
+        <h3>Deterministic</h3>
+        <p>Same seed always produces the same avatar. Perfect for user profiles — consistent across sessions and devices.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <h3>No API Required</h3>
+        <p>Everything ships inside the npm package. Works offline, in private networks, and with zero latency.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Zero Initial Bundle</h3>
+        <p>Core logic is ~5 KB. Images are lazy-loaded as separate chunks — your app only downloads what it renders.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🖼</div>
+        <h3>PNG Illustrations</h3>
+        <p>Hand-crafted character portraits, not geometric patterns. Real artists, real style — transparent backgrounds available.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYGROUND -->
+<section id="playground">
+  <div class="container">
+    <div class="section-label">Try It</div>
+    <h2 class="section-title">Playground</h2>
+    <p class="section-subtitle">Type any seed — an email, username, or user ID — and see your avatar in real time.</p>
+
+    <div class="playground-inner">
+      <div class="seed-group">
+        <label class="seed-label">Seed</label>
+        <input class="seed-input" id="seedInput" type="text" value="user@example.com" placeholder="Enter any seed..." oninput="updatePlayground()" />
+
+        <label class="seed-label" style="margin-top:.5rem">Style</label>
+        <div class="style-tabs">
+          <button class="style-tab active" onclick="setStyle('doteye', this)">doteye</button>
+          <button class="style-tab" onclick="setStyle('doteyeAlpha', this)">doteyeAlpha</button>
+        </div>
+
+        <div style="margin-top:1rem; padding:1rem; background:#fff; border-radius:var(--radius); border:1px solid var(--border); font-size:.85rem; color:var(--muted); font-family:monospace; line-height:1.8;">
+          <span id="codePreview"></span>
+        </div>
+      </div>
+
+      <div class="avatar-preview-box">
+        <img id="avatarResult" class="avatar-result" src="" alt="Avatar preview" />
+        <div class="avatar-meta">
+          Index: <strong id="avatarIndex">—</strong> &nbsp;/&nbsp; Set: <strong id="avatarSet">—</strong>
+        </div>
+        <button class="copy-url-btn" onclick="copyAvatarUrl()">Copy CDN URL</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STYLES GALLERY -->
+<section id="styles">
+  <div class="container">
+    <div class="section-label">Collections</div>
+    <h2 class="section-title">Style Sets</h2>
+    <p class="section-subtitle">Click any avatar to copy its CDN URL. All characters are crafted as illustrated portraits.</p>
+
+    <div class="gallery-tabs">
+      <button class="gallery-tab active" onclick="showGallery('doteye', this)">doteye <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 avatars</span></button>
+      <button class="gallery-tab" onclick="showGallery('doteyeAlpha', this)">doteyeAlpha <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 avatars · transparent</span></button>
+    </div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+</section>
+
+<!-- USAGE -->
+<section id="usage">
+  <div class="container">
+    <div class="section-label">Install & Use</div>
+    <h2 class="section-title">Usage</h2>
+    <p class="section-subtitle">Works in any JavaScript environment — React, Vue, Node.js, or plain HTML.</p>
+
+    <div style="margin-top:2rem">
+      <div class="code-tabs">
+        <button class="code-tab active" onclick="showCode('npm', this)">npm / SPA</button>
+        <button class="code-tab" onclick="showCode('cdn', this)">CDN</button>
+        <button class="code-tab" onclick="showCode('react', this)">React</button>
+        <button class="code-tab" onclick="showCode('node', this)">Node.js</button>
+      </div>
+
+      <div class="code-panel active" id="code-npm">
+        <pre><span class="cm">// Install once</span>
+<span class="cm">// npm install quick-avatar</span>
+
+<span class="kw">import</span> { createAvatar, doteye, doteyeAlpha } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
+
+<span class="cm">// Solid white background</span>
+<span class="kw">const</span> avatar = createAvatar(doteye, { seed: <span class="str">'user@example.com'</span> });
+<span class="kw">const</span> src = <span class="kw">await</span> avatar.<span class="fn">toDataUri</span>();
+<span class="cm">// → "data:image/png;base64,..."</span>
+
+<span class="cm">// Transparent background</span>
+<span class="kw">const</span> avatarAlpha = createAvatar(doteyeAlpha, { seed: <span class="str">'user@example.com'</span> });
+<span class="kw">const</span> srcAlpha = <span class="kw">await</span> avatarAlpha.<span class="fn">toDataUri</span>();</pre>
+      </div>
+
+      <div class="code-panel" id="code-cdn">
+        <pre><span class="cm">&lt;!-- No install needed — link directly from jsDelivr --&gt;</span>
+
+<span class="cm">&lt;!-- With JavaScript hash --&gt;</span>
+&lt;<span class="fn">script</span>&gt;
+  <span class="kw">function</span> <span class="fn">quickAvatarUrl</span>(seed, set = <span class="str">'doteye'</span>) {
+    <span class="kw">let</span> h = 5381;
+    <span class="kw">for</span> (<span class="kw">let</span> i = 0; i &lt; seed.length; i++)
+      h = ((h &lt;&lt; 5) + h) ^ seed.charCodeAt(i), h = h &gt;&gt;&gt; 0;
+    <span class="kw">const</span> idx = h % 64;
+    <span class="kw">return</span> <span class="str">`https://cdn.jsdelivr.net/npm/quick-avatar/dist/sets/${set}/images/${idx}.png`</span>;
+  }
+
+  document.<span class="fn">getElementById</span>(<span class="str">'avatar'</span>).src = <span class="fn">quickAvatarUrl</span>(<span class="str">'user@example.com'</span>);
+&lt;/<span class="fn">script</span>&gt;
+
+&lt;<span class="fn">img</span> id=<span class="str">"avatar"</span> width=<span class="str">"64"</span> height=<span class="str">"64"</span> /&gt;</pre>
+      </div>
+
+      <div class="code-panel" id="code-react">
+        <pre><span class="kw">import</span> { useEffect, useState } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> { createAvatar, doteye, doteyeAlpha } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
+
+<span class="kw">function</span> <span class="fn">Avatar</span>({ userId, alpha = <span class="kw">false</span> }) {
+  <span class="kw">const</span> [src, setSrc] = <span class="fn">useState</span>(<span class="str">''</span>);
+  <span class="kw">const</span> set = alpha ? doteyeAlpha : doteye;
+
+  <span class="fn">useEffect</span>(() =&gt; {
+    createAvatar(set, { seed: userId }).<span class="fn">toDataUri</span>().<span class="fn">then</span>(setSrc);
+  }, [userId, alpha]);
+
+  <span class="kw">return</span> &lt;<span class="fn">img</span> src={src} width={64} height={64} alt=<span class="str">"avatar"</span> /&gt;;
+}
+
+<span class="cm">// Usage</span>
+&lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> /&gt;
+&lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> alpha /&gt;</pre>
+      </div>
+
+      <div class="code-panel" id="code-node">
+        <pre><span class="kw">import</span> { createAvatar, doteye } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
+<span class="kw">import</span> fs <span class="kw">from</span> <span class="str">'fs'</span>;
+
+<span class="kw">const</span> avatar = createAvatar(doteye, { seed: req.user.id });
+
+<span class="cm">// Serve as HTTP response</span>
+res.<span class="fn">setHeader</span>(<span class="str">'Content-Type'</span>, <span class="str">'image/png'</span>);
+res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
+
+<span class="cm">// Or get absolute file path</span>
+<span class="kw">const</span> path = avatar.<span class="fn">toFilePath</span>();
+
+<span class="cm">// Or use data URI in emails / HTML generation</span>
+<span class="kw">const</span> dataUri = <span class="kw">await</span> avatar.<span class="fn">toDataUri</span>();</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>quick-avatar — Open source MIT licensed</p>
+  <div class="footer-links">
+    <a href="https://github.com/easychen/quick-avatar" target="_blank">GitHub</a>
+    <a href="https://www.npmjs.com/package/quick-avatar" target="_blank">npm</a>
+    <a href="https://cdn.jsdelivr.net/npm/quick-avatar/" target="_blank">jsDelivr CDN</a>
+  </div>
+</footer>
+
+<div class="copied-toast" id="toast">Copied!</div>
+
+<script>
+  const CDN = 'https://cdn.jsdelivr.net/npm/quick-avatar/dist/sets';
+  const COUNT = 64;
+
+  function hashSeed(seed, total) {
+    let h = 5381;
+    for (let i = 0; i < seed.length; i++) {
+      h = ((h << 5) + h) ^ seed.charCodeAt(i);
+      h = h >>> 0;
+    }
+    return h % total;
+  }
+
+  function avatarUrl(seed, set) {
+    return `${CDN}/${set}/images/${hashSeed(seed, COUNT)}.png`;
+  }
+
+  // ── COPY HELPERS ──
+  function copyText(text) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  function copyInstall(el) {
+    copyText('npm install quick-avatar');
+    el.querySelector('span:last-child').textContent = 'Copied!';
+    setTimeout(() => el.querySelector('span:last-child').textContent = 'npm install quick-avatar', 1500);
+  }
+
+  // ── HERO STRIP ──
+  (function buildStrip() {
+    const strip = document.getElementById('heroStrip');
+    const sets = ['doteye', 'doteyeAlpha'];
+    // build double-length for seamless loop
+    const items = [];
+    for (let pass = 0; pass < 2; pass++) {
+      for (let i = 0; i < 16; i++) {
+        const set = sets[i % 2];
+        const idx = Math.floor(Math.random() * COUNT);
+        items.push({ set, idx });
+      }
+    }
+    items.forEach(({ set, idx }) => {
+      const img = document.createElement('img');
+      img.src = `${CDN}/${set}/images/${idx}.png`;
+      img.alt = '';
+      img.loading = 'lazy';
+      if (set === 'doteyeAlpha') {
+        img.style.background = 'linear-gradient(135deg,#ede9fe,#e0f2fe)';
+      }
+      strip.appendChild(img);
+    });
+  })();
+
+  // ── PLAYGROUND ──
+  let currentStyle = 'doteye';
+
+  function setStyle(style, btn) {
+    currentStyle = style;
+    document.querySelectorAll('.style-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updatePlayground();
+  }
+
+  function updatePlayground() {
+    const seed = document.getElementById('seedInput').value || 'user@example.com';
+    const idx = hashSeed(seed, COUNT);
+    const url = `${CDN}/${currentStyle}/images/${idx}.png`;
+
+    const img = document.getElementById('avatarResult');
+    img.src = url;
+    img.className = 'avatar-result' + (currentStyle === 'doteyeAlpha' ? ' alpha-bg' : '');
+
+    document.getElementById('avatarIndex').textContent = idx;
+    document.getElementById('avatarSet').textContent = currentStyle;
+
+    const q = seed.length > 20 ? seed.slice(0, 20) + '…' : seed;
+    document.getElementById('codePreview').innerHTML =
+      `<span style="color:#818cf8">createAvatar</span>(${currentStyle}, {<br>&nbsp;&nbsp;seed: <span style="color:#86efac">'${q}'</span><br>}).<span style="color:#38bdf8">toUrl</span>()<br><span style="color:#475569">// → index ${idx}</span>`;
+  }
+
+  function copyAvatarUrl() {
+    const seed = document.getElementById('seedInput').value || 'user@example.com';
+    copyText(`${CDN}/${currentStyle}/images/${hashSeed(seed, COUNT)}.png`);
+  }
+
+  updatePlayground();
+
+  // ── GALLERY ──
+  let currentGallery = 'doteye';
+
+  function buildGallery(set) {
+    const grid = document.getElementById('galleryGrid');
+    grid.innerHTML = '';
+    const isAlpha = set === 'doteyeAlpha';
+    for (let i = 0; i < COUNT; i++) {
+      const url = `${CDN}/${set}/images/${i}.png`;
+      const item = document.createElement('div');
+      item.className = 'gallery-item' + (isAlpha ? ' alpha' : '');
+      item.title = `Copy CDN URL for index ${i}`;
+      item.onclick = () => copyText(url);
+
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = `${set} #${i}`;
+      img.loading = 'lazy';
+
+      const lbl = document.createElement('span');
+      lbl.textContent = `#${i}`;
+
+      item.appendChild(img);
+      item.appendChild(lbl);
+      grid.appendChild(item);
+    }
+  }
+
+  function showGallery(set, btn) {
+    currentGallery = set;
+    document.querySelectorAll('.gallery-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    buildGallery(set);
+  }
+
+  buildGallery('doteye');
+
+  // ── CODE TABS ──
+  function showCode(id, btn) {
+    document.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.code-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('code-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

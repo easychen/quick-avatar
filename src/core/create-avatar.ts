@@ -1,4 +1,3 @@
-import { readFileSync } from 'fs';
 import type { AvatarCollection, AvatarOptions, AvatarResult } from './types.js';
 import { hashSeed } from './hash.js';
 
@@ -28,8 +27,9 @@ export function createAvatar(
       return collection.getFilePath(index);
     },
 
+    // Node.js CJS only — not available in browser or Node.js ESM
     toBuffer(): Buffer {
-      return readFileSync(collection.getFilePath(index));
+      throw new Error('toBuffer() requires Node.js CJS. Use toDataUri() for browser environments.');
     },
   };
 }
