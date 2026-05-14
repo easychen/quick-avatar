@@ -59,6 +59,7 @@
       padding: .4rem .9rem; border-radius: 8px; font-size: .85rem; font-weight: 600;
       background: var(--text); color: #fff; transition: opacity .15s;
     }
+    .btn-github svg { fill: #fff; }
     .btn-github:hover { opacity: .85; }
 
     /* ── HERO ── */
@@ -197,6 +198,8 @@
     .gallery-tab.active {
       background: var(--primary); color: #fff; border-color: var(--primary);
     }
+    .gallery-tab.active span,
+    .style-tab.active span { color: rgba(255,255,255,.7) !important; }
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -405,6 +408,7 @@
         <button class="code-tab" onclick="showCode('cdn', this)">CDN</button>
         <button class="code-tab" onclick="showCode('react', this)">React</button>
         <button class="code-tab" onclick="showCode('node', this)">Node.js</button>
+        <button class="code-tab" onclick="showCode('rn', this)">React Native</button>
       </div>
 
       <div class="code-panel active" id="code-npm">
@@ -465,6 +469,44 @@
 &lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> /&gt;
 &lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> style=<span class="str">"doteyeAlpha"</span> /&gt;
 &lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> style=<span class="str">"doteyePaper"</span> /&gt;</pre>
+      </div>
+
+      <div class="code-panel" id="code-rn">
+        <pre><span class="cm">// Works in Expo and bare React Native</span>
+<span class="cm">// Data URIs are natively supported by RN's Image component</span>
+
+<span class="kw">import</span> { useEffect, useState } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> { Image, StyleSheet } <span class="kw">from</span> <span class="str">'react-native'</span>;
+<span class="kw">import</span> { createAvatar, doteye, doteyeAlpha, doteyePaper } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
+
+<span class="kw">const</span> sets = { doteye, doteyeAlpha, doteyePaper };
+
+<span class="kw">function</span> <span class="fn">Avatar</span>({ userId, style = <span class="str">'doteye'</span>, size = 64 }) {
+  <span class="kw">const</span> [uri, setUri] = <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() =&gt; {
+    createAvatar(sets[style], { seed: userId })
+      .<span class="fn">toDataUri</span>()
+      .<span class="fn">then</span>(setUri);
+  }, [userId, style]);
+
+  <span class="kw">if</span> (!uri) <span class="kw">return null</span>;
+
+  <span class="kw">return</span> (
+    &lt;<span class="fn">Image</span>
+      source={{ uri }}
+      style={[styles.avatar, { width: size, height: size, borderRadius: size / 2 }]}
+    /&gt;
+  );
+}
+
+<span class="kw">const</span> styles = StyleSheet.<span class="fn">create</span>({
+  avatar: { backgroundColor: <span class="str">'#f1f5f9'</span> },
+});
+
+<span class="cm">// Usage</span>
+&lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> /&gt;
+&lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> style=<span class="str">"doteyeAlpha"</span> size={80} /&gt;</pre>
       </div>
 
       <div class="code-panel" id="code-node">
