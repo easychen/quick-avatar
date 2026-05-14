@@ -1,6 +1,6 @@
 {
   "name": "quick-avatar",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Deterministic PNG avatars for your projects. No API needed.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
