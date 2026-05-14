@@ -357,6 +357,7 @@
         <div class="style-tabs">
           <button class="style-tab active" onclick="setStyle('doteye', this)">doteye</button>
           <button class="style-tab" onclick="setStyle('doteye-alpha', this)">doteyeAlpha</button>
+          <button class="style-tab" onclick="setStyle('doteye-paper', this)">doteyePaper</button>
         </div>
 
         <div style="margin-top:1rem; padding:1rem; background:#fff; border-radius:var(--radius); border:1px solid var(--border); font-size:.85rem; color:var(--muted); font-family:monospace; line-height:1.8;">
@@ -384,7 +385,8 @@
 
     <div class="gallery-tabs">
       <button class="gallery-tab active" onclick="showGallery('doteye', this)">doteye <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 avatars</span></button>
-      <button class="gallery-tab" onclick="showGallery('doteye-alpha', this)">doteyeAlpha <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 avatars · transparent</span></button>
+      <button class="gallery-tab" onclick="showGallery('doteye-alpha', this)">doteyeAlpha <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 · transparent</span></button>
+      <button class="gallery-tab" onclick="showGallery('doteye-paper', this)">doteyePaper <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 · B&amp;W</span></button>
     </div>
     <div class="gallery-grid" id="galleryGrid"></div>
   </div>
@@ -409,7 +411,7 @@
         <pre><span class="cm">// Install once</span>
 <span class="cm">// npm install quick-avatar</span>
 
-<span class="kw">import</span> { createAvatar, doteye, doteyeAlpha } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
+<span class="kw">import</span> { createAvatar, doteye, doteyeAlpha, doteyePaper } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
 
 <span class="cm">// Solid white background</span>
 <span class="kw">const</span> avatar = createAvatar(doteye, { seed: <span class="str">'user@example.com'</span> });
@@ -418,7 +420,9 @@
 
 <span class="cm">// Transparent background</span>
 <span class="kw">const</span> avatarAlpha = createAvatar(doteyeAlpha, { seed: <span class="str">'user@example.com'</span> });
-<span class="kw">const</span> srcAlpha = <span class="kw">await</span> avatarAlpha.<span class="fn">toDataUri</span>();</pre>
+
+<span class="cm">// Black &amp; white, transparent background</span>
+<span class="kw">const</span> avatarPaper = createAvatar(doteyePaper, { seed: <span class="str">'user@example.com'</span> });</pre>
       </div>
 
       <div class="code-panel" id="code-cdn">
@@ -442,22 +446,25 @@
 
       <div class="code-panel" id="code-react">
         <pre><span class="kw">import</span> { useEffect, useState } <span class="kw">from</span> <span class="str">'react'</span>;
-<span class="kw">import</span> { createAvatar, doteye, doteyeAlpha } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
+<span class="kw">import</span> { createAvatar, doteye, doteyeAlpha, doteyePaper } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
 
-<span class="kw">function</span> <span class="fn">Avatar</span>({ userId, alpha = <span class="kw">false</span> }) {
+<span class="kw">const</span> sets = { doteye, doteyeAlpha, doteyePaper };
+
+<span class="kw">function</span> <span class="fn">Avatar</span>({ userId, style = <span class="str">'doteye'</span> }) {
   <span class="kw">const</span> [src, setSrc] = <span class="fn">useState</span>(<span class="str">''</span>);
-  <span class="kw">const</span> set = alpha ? doteyeAlpha : doteye;
+  <span class="kw">const</span> set = sets[style];
 
   <span class="fn">useEffect</span>(() =&gt; {
     createAvatar(set, { seed: userId }).<span class="fn">toDataUri</span>().<span class="fn">then</span>(setSrc);
-  }, [userId, alpha]);
+  }, [userId, style]);
 
   <span class="kw">return</span> &lt;<span class="fn">img</span> src={src} width={64} height={64} alt=<span class="str">"avatar"</span> /&gt;;
 }
 
 <span class="cm">// Usage</span>
 &lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> /&gt;
-&lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> alpha /&gt;</pre>
+&lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> style=<span class="str">"doteyeAlpha"</span> /&gt;
+&lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> style=<span class="str">"doteyePaper"</span> /&gt;</pre>
       </div>
 
       <div class="code-panel" id="code-node">
@@ -526,7 +533,7 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
   // ── HERO STRIP ──
   (function buildStrip() {
     const strip = document.getElementById('heroStrip');
-    const sets = ['doteye', 'doteye-alpha'];
+    const sets = ['doteye', 'doteye-alpha', 'doteye-paper'];
     // build double-length for seamless loop
     const items = [];
     for (let pass = 0; pass < 2; pass++) {
@@ -543,6 +550,8 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
       img.loading = 'lazy';
       if (set === 'doteye-alpha') {
         img.style.background = 'linear-gradient(135deg,#ede9fe,#e0f2fe)';
+      } else if (set === 'doteye-paper') {
+        img.style.background = 'linear-gradient(135deg,#f8fafc,#e2e8f0)';
       }
       strip.appendChild(img);
     });
@@ -565,7 +574,10 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
 
     const img = document.getElementById('avatarResult');
     img.src = url;
-    img.className = 'avatar-result' + (currentStyle === 'doteye-alpha' ? ' alpha-bg' : '');
+    const isTransparent = currentStyle === 'doteye-alpha' || currentStyle === 'doteye-paper';
+    img.className = 'avatar-result' + (isTransparent ? ' alpha-bg' : '');
+    if (currentStyle === 'doteye-paper') img.style.background = 'linear-gradient(135deg,#f8fafc,#e2e8f0)';
+    else img.style.background = '';
 
     document.getElementById('avatarIndex').textContent = idx;
     document.getElementById('avatarSet').textContent = currentStyle;
@@ -588,7 +600,7 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
   function buildGallery(set) {
     const grid = document.getElementById('galleryGrid');
     grid.innerHTML = '';
-    const isAlpha = set === 'doteye-alpha';
+    const isAlpha = set === 'doteye-alpha' || set === 'doteye-paper';
     for (let i = 0; i < COUNT; i++) {
       const url = `${CDN}/${set}/images/${i}.png`;
       const item = document.createElement('div');

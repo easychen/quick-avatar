@@ -115,15 +115,19 @@ Returns an `AvatarResult`:
 |--------|------|-------|------------|
 | `doteye` | Doteye | 64 | White |
 | `doteyeAlpha` | Doteye Alpha | 64 | Transparent |
+| `doteyePaper` | Doteye Paper | 64 | Transparent (B&W) |
 
 ```ts
-import { createAvatar, doteye, doteyeAlpha } from 'quick-avatar';
+import { createAvatar, doteye, doteyeAlpha, doteyePaper } from 'quick-avatar';
 
 // Solid white background
 const avatar = createAvatar(doteye, { seed: 'user@example.com' });
 
 // Transparent background — compose over any color
 const avatarAlpha = createAvatar(doteyeAlpha, { seed: 'user@example.com' });
+
+// Black & white, transparent background
+const avatarPaper = createAvatar(doteyePaper, { seed: 'user@example.com' });
 ```
 
 ---
