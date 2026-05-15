@@ -361,6 +361,8 @@
           <button class="style-tab active" onclick="setStyle('doteye', this)">doteye</button>
           <button class="style-tab" onclick="setStyle('doteye-alpha', this)">doteyeAlpha</button>
           <button class="style-tab" onclick="setStyle('doteye-paper', this)">doteyePaper</button>
+          <button class="style-tab" onclick="setStyle('jk-alpha', this)">jkAlpha</button>
+          <button class="style-tab" onclick="setStyle('jk-alpha-sm', this)">jkAlpha SM</button>
         </div>
 
         <div style="margin-top:1rem; padding:1rem; background:#fff; border-radius:var(--radius); border:1px solid var(--border); font-size:.85rem; color:var(--muted); font-family:monospace; line-height:1.8;">
@@ -390,6 +392,8 @@
       <button class="gallery-tab active" onclick="showGallery('doteye', this)">doteye <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 avatars</span></button>
       <button class="gallery-tab" onclick="showGallery('doteye-alpha', this)">doteyeAlpha <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 · transparent</span></button>
       <button class="gallery-tab" onclick="showGallery('doteye-paper', this)">doteyePaper <span style="color:var(--muted);font-weight:400;margin-left:.3rem">64 · B&amp;W</span></button>
+      <button class="gallery-tab" onclick="showGallery('jk-alpha', this)">jkAlpha <span style="color:var(--muted);font-weight:400;margin-left:.3rem">56 · transparent</span></button>
+      <button class="gallery-tab" onclick="showGallery('jk-alpha-sm', this)">jkAlpha SM <span style="color:var(--muted);font-weight:400;margin-left:.3rem">56 · 512px</span></button>
     </div>
     <div class="gallery-grid" id="galleryGrid"></div>
   </div>
@@ -415,7 +419,7 @@
         <pre><span class="cm">// Install once</span>
 <span class="cm">// npm install quick-avatar</span>
 
-<span class="kw">import</span> { createAvatar, doteye, doteyeAlpha, doteyePaper } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
+<span class="kw">import</span> { createAvatar, doteye, doteyeAlpha, doteyePaper, jkAlpha } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
 
 <span class="cm">// Solid white background</span>
 <span class="kw">const</span> avatar = createAvatar(doteye, { seed: <span class="str">'user@example.com'</span> });
@@ -426,7 +430,10 @@
 <span class="kw">const</span> avatarAlpha = createAvatar(doteyeAlpha, { seed: <span class="str">'user@example.com'</span> });
 
 <span class="cm">// Black &amp; white, transparent background</span>
-<span class="kw">const</span> avatarPaper = createAvatar(doteyePaper, { seed: <span class="str">'user@example.com'</span> });</pre>
+<span class="kw">const</span> avatarPaper = createAvatar(doteyePaper, { seed: <span class="str">'user@example.com'</span> });
+
+<span class="cm">// JK style, transparent background</span>
+<span class="kw">const</span> avatarJk = createAvatar(jkAlpha, { seed: <span class="str">'user@example.com'</span> });</pre>
       </div>
 
       <div class="code-panel" id="code-cdn">
@@ -450,9 +457,9 @@
 
       <div class="code-panel" id="code-react">
         <pre><span class="kw">import</span> { useEffect, useState } <span class="kw">from</span> <span class="str">'react'</span>;
-<span class="kw">import</span> { createAvatar, doteye, doteyeAlpha, doteyePaper } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
+<span class="kw">import</span> { createAvatar, doteye, doteyeAlpha, doteyePaper, jkAlpha } <span class="kw">from</span> <span class="str">'quick-avatar'</span>;
 
-<span class="kw">const</span> sets = { doteye, doteyeAlpha, doteyePaper };
+<span class="kw">const</span> sets = { doteye, doteyeAlpha, doteyePaper, jkAlpha };
 
 <span class="kw">function</span> <span class="fn">Avatar</span>({ userId, style = <span class="str">'doteye'</span> }) {
   <span class="kw">const</span> [src, setSrc] = <span class="fn">useState</span>(<span class="str">''</span>);
@@ -468,7 +475,8 @@
 <span class="cm">// Usage</span>
 &lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> /&gt;
 &lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> style=<span class="str">"doteyeAlpha"</span> /&gt;
-&lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> style=<span class="str">"doteyePaper"</span> /&gt;</pre>
+&lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> style=<span class="str">"doteyePaper"</span> /&gt;
+&lt;<span class="fn">Avatar</span> userId=<span class="str">"user-123"</span> style=<span class="str">"jkAlpha"</span> /&gt;</pre>
       </div>
 
       <div class="code-panel" id="code-rn">
@@ -543,7 +551,7 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
 
 <script>
   const CDN = 'https://cdn.jsdelivr.net/npm/quick-avatar/dist/sets';
-  const COUNT = 64;
+  const SET_COUNTS = { 'doteye': 64, 'doteye-alpha': 64, 'doteye-paper': 64, 'jk-alpha': 56, 'jk-alpha-sm': 56 };
 
   function hashSeed(seed, total) {
     let h = 5381;
@@ -555,7 +563,7 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
   }
 
   function avatarUrl(seed, set) {
-    return `${CDN}/${set}/images/${hashSeed(seed, COUNT)}.png`;
+    return `${CDN}/${set}/images/${hashSeed(seed, SET_COUNTS[set] || 64)}.png`;
   }
 
   // ── COPY HELPERS ──
@@ -575,13 +583,14 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
   // ── HERO STRIP ──
   (function buildStrip() {
     const strip = document.getElementById('heroStrip');
-    const sets = ['doteye', 'doteye-alpha', 'doteye-paper'];
+    const sets = ['doteye', 'doteye-alpha', 'doteye-paper', 'jk-alpha'];
     // build double-length for seamless loop
     const items = [];
     for (let pass = 0; pass < 2; pass++) {
       for (let i = 0; i < 16; i++) {
-        const set = sets[i % 2];
-        const idx = Math.floor(Math.random() * COUNT);
+        const set = sets[i % sets.length];
+        const cnt = SET_COUNTS[set] || 64;
+        const idx = Math.floor(Math.random() * cnt);
         items.push({ set, idx });
       }
     }
@@ -590,7 +599,7 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
       img.src = `${CDN}/${set}/images/${idx}.png`;
       img.alt = '';
       img.loading = 'lazy';
-      if (set === 'doteye-alpha') {
+      if (set === 'doteye-alpha' || set === 'jk-alpha') {
         img.style.background = 'linear-gradient(135deg,#ede9fe,#e0f2fe)';
       } else if (set === 'doteye-paper') {
         img.style.background = 'linear-gradient(135deg,#f8fafc,#e2e8f0)';
@@ -611,12 +620,13 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
 
   function updatePlayground() {
     const seed = document.getElementById('seedInput').value || 'user@example.com';
-    const idx = hashSeed(seed, COUNT);
+    const cnt = SET_COUNTS[currentStyle] || 64;
+    const idx = hashSeed(seed, cnt);
     const url = `${CDN}/${currentStyle}/images/${idx}.png`;
 
     const img = document.getElementById('avatarResult');
     img.src = url;
-    const isTransparent = currentStyle === 'doteye-alpha' || currentStyle === 'doteye-paper';
+    const isTransparent = currentStyle === 'doteye-alpha' || currentStyle === 'doteye-paper' || currentStyle === 'jk-alpha' || currentStyle === 'jk-alpha-sm';
     img.className = 'avatar-result' + (isTransparent ? ' alpha-bg' : '');
     if (currentStyle === 'doteye-paper') img.style.background = 'linear-gradient(135deg,#f8fafc,#e2e8f0)';
     else img.style.background = '';
@@ -631,7 +641,7 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
 
   function copyAvatarUrl() {
     const seed = document.getElementById('seedInput').value || 'user@example.com';
-    copyText(`${CDN}/${currentStyle}/images/${hashSeed(seed, COUNT)}.png`);
+    copyText(`${CDN}/${currentStyle}/images/${hashSeed(seed, SET_COUNTS[currentStyle] || 64)}.png`);
   }
 
   updatePlayground();
@@ -642,8 +652,9 @@ res.<span class="fn">end</span>(avatar.<span class="fn">toBuffer</span>());
   function buildGallery(set) {
     const grid = document.getElementById('galleryGrid');
     grid.innerHTML = '';
-    const isAlpha = set === 'doteye-alpha' || set === 'doteye-paper';
-    for (let i = 0; i < COUNT; i++) {
+    const isAlpha = set === 'doteye-alpha' || set === 'doteye-paper' || set === 'jk-alpha' || set === 'jk-alpha-sm';
+    const total = SET_COUNTS[set] || 64;
+    for (let i = 0; i < total; i++) {
       const url = `${CDN}/${set}/images/${i}.png`;
       const item = document.createElement('div');
       item.className = 'gallery-item' + (isAlpha ? ' alpha' : '');
