@@ -1,5 +1,8 @@
 # quick-avatar
 
+<img width="998" height="655" alt="image" src="https://github.com/user-attachments/assets/68bb7762-1f92-4fe9-9b9f-aba4e7182afd" />
+
+
 Deterministic PNG avatars for your projects. Pick a seed, get an avatar — no API, no server, no network required.
 
 Inspired by [DiceBear](https://dicebear.com), but uses hand-crafted PNG illustrations instead of generated SVGs.
